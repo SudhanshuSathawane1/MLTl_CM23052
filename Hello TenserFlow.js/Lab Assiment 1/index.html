@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+</head>
+<body>
+    <h1>TensorFlow.js Tensors of Different Dimensions</h1>
+    <div id="output"></div>
+
+    <script>
+        // Create a scalar tensor (0D)
+        const scalar = tf.scalar(5);
+        console.log('Scalar:');
+        scalar.print();
+
+        // Create a vector tensor (1D)
+        const vector = tf.tensor([1, 2, 3, 4]);
+        console.log('Vector:');
+        vector.print();
+
+        // Create a matrix tensor (2D)
+        const matrix = tf.tensor([[1, 2, 3], [4, 5, 6]]);
+        console.log('Matrix:');
+        matrix.print();
+
+        // Display on page
+        const output = document.getElementById('output');
+        output.innerHTML = `
+            <p><strong>Scalar:</strong> ${scalar.dataSync()}</p>
+            <p><strong>Vector:</strong> [${vector.dataSync()}]</p>
+            <p><strong>Matrix:</strong></p>
+            <pre>${matrix.dataSync()}</pre>
+        `;
+    </script>
+</body>
+</html>
