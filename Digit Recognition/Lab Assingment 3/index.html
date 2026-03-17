@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Prediction for Unseen Data</title>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+</head>
+
+<body>
+
+<h2>Prediction for Unseen Inputs</h2>
+<pre id="result"></pre>
+
+<script>
+
+let xs=[];
+let ys=[];
+
+for(let i=0;i<100;i++){
+let x=i/10;
+let y=3*x+2+(Math.random()-0.5);
+xs.push(x);
+ys.push(y);
+}
+
+const X=tf.tensor(xs);
+const Y=tf.tensor(ys);
+
+// Model
+const model=tf.sequential();
+model.add(tf.layers.dense({units:1,inputShape:[1]}));
+
+model.compile({
+optimizer:'sgd',
+loss:'meanSquaredError'
+});
+
+async function train(){
+
+await model.fit(X,Y,{epochs:100});
+
+// Unseen inputs
+const newX=tf.tensor([12,15,18]);
+
+const pred=model.predict(newX).dataSync();
+
+let output="Predictions:\n";
+
+for(let i=0;i<3;i++){
+output+="Input "+newX.arraySync()[i]+" → "+pred[i]+"\n";
+}
+
+document.getElementById("result").innerText=output;
+
+}
+
+train();
+
+</script>
+
+</body>
+</html>

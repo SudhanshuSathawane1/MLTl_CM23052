@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Linear Regression - Predicted vs Actual</title>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<h2>Linear Regression (Predicted vs Actual)</h2>
+<canvas id="chart"></canvas>
+
+<script>
+
+// Generate synthetic data
+let xs = [];
+let ys = [];
+
+for(let i=0;i<100;i++){
+    let x = i/10;
+    let y = 3*x + 2 + (Math.random()-0.5);
+    xs.push(x);
+    ys.push(y);
+}
+
+// Tensor conversion
+const X = tf.tensor(xs);
+const Y = tf.tensor(ys);
+
+// Build model
+const model = tf.sequential();
+model.add(tf.layers.dense({units:1,inputShape:[1]}));
+
+model.compile({
+optimizer:'sgd',
+loss:'meanSquaredError'
+});
+
+// Train
+async function train(){
+await model.fit(X,Y,{epochs:100});
+
+// Prediction
+let pred = model.predict(X).dataSync();
+
+// Plot graph
+new Chart(document.getElementById("chart"),{
+type:'scatter',
+data:{
+datasets:[
+{
+label:'Actual',
+data:xs.map((x,i)=>({x:x,y:ys[i]}))
+},
+{
+label:'Predicted',
+data:xs.map((x,i)=>({x:x,y:pred[i]})),
+type:'line'
+}
+]
+}
+});
+
+}
+
+train();
+
+</script>
+
+</body>
+</html>

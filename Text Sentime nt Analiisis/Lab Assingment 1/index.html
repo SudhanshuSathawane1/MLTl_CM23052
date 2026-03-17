@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Sentiment Classifier</title>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+</head>
+
+<body>
+
+<h2>Train Sentiment Classifier</h2>
+<pre id="output"></pre>
+
+<script>
+
+// Simple dataset
+const sentences = [
+"i love this movie",
+"this film is amazing",
+"i feel happy today",
+"this is wonderful",
+"i hate this movie",
+"this film is terrible",
+"i feel sad",
+"this is bad"
+];
+
+// Labels (1=positive, 0=negative)
+const labels = [1,1,1,1,0,0,0,0];
+
+// Simple word encoding
+const vocab = {};
+let index = 1;
+
+sentences.forEach(s=>{
+s.split(" ").forEach(w=>{
+if(!vocab[w]){
+vocab[w] = index++;
+}
+});
+});
+
+function encode(sentence){
+return sentence.split(" ").map(w=>vocab[w] || 0);
+}
+
+let encoded = sentences.map(encode);
+
+// Padding
+let maxLen = 4;
+
+encoded = encoded.map(arr=>{
+while(arr.length<maxLen) arr.push(0);
+return arr;
+});
+
+// Tensor data
+const xs = tf.tensor2d(encoded);
+const ys = tf.tensor2d(labels,[labels.length,1]);
+
+// Model
+const model = tf.sequential();
+model.add(tf.layers.embedding({inputDim:50,outputDim:8,inputLength:maxLen}));
+model.add(tf.layers.flatten());
+model.add(tf.layers.dense({units:1,activation:'sigmoid'}));
+
+model.compile({
+optimizer:'adam',
+loss:'binaryCrossentropy',
+metrics:['accuracy']
+});
+
+async function train(){
+
+let h = await model.fit(xs,ys,{epochs:50});
+
+document.getElementById("output").innerText =
+"Training Accuracy: "+h.history.acc?.slice(-1);
+
+}
+
+train();
+
+</script>
+
+</body>
+</html>

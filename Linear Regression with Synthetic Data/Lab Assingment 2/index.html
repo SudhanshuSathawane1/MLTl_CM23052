@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Learning Rate Experiment</title>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+</head>
+
+<body>
+
+<h2>Learning Rate Experiment</h2>
+<pre id="output"></pre>
+
+<script>
+
+let xs = [];
+let ys = [];
+
+for(let i=0;i<100;i++){
+let x=i/10;
+let y=3*x+2+(Math.random()-0.5);
+xs.push(x);
+ys.push(y);
+}
+
+const X=tf.tensor(xs);
+const Y=tf.tensor(ys);
+
+let learningRates=[0.001,0.01,0.1];
+
+async function run(){
+
+for(let lr of learningRates){
+
+const model=tf.sequential();
+model.add(tf.layers.dense({units:1,inputShape:[1]}));
+
+model.compile({
+optimizer:tf.train.sgd(lr),
+loss:'meanSquaredError'
+});
+
+let history=await model.fit(X,Y,{epochs:50});
+
+document.getElementById("output").innerHTML += 
+"Learning Rate: "+lr+" Final Loss: "+
+history.history.loss[49]+"\n";
+
+}
+
+}
+
+run();
+
+</script>
+
+</body>
+</html>

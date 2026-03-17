@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>RNN vs Dense Sentiment Model</title>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+</head>
+
+<body>
+
+<h2>Model Comparison</h2>
+<pre id="output"></pre>
+
+<script>
+
+// Dummy data
+const xs = tf.randomNormal([50,5]);
+const ys = tf.randomUniform([50,1]);
+
+// Dense Model
+const denseModel = tf.sequential();
+denseModel.add(tf.layers.dense({units:8,inputShape:[5],activation:'relu'}));
+denseModel.add(tf.layers.dense({units:1,activation:'sigmoid'}));
+
+denseModel.compile({
+optimizer:'adam',
+loss:'binaryCrossentropy',
+metrics:['accuracy']
+});
+
+// RNN Model
+const rnnModel = tf.sequential();
+rnnModel.add(tf.layers.simpleRNN({units:8,inputShape:[5,1]}));
+rnnModel.add(tf.layers.dense({units:1,activation:'sigmoid'}));
+
+rnnModel.compile({
+optimizer:'adam',
+loss:'binaryCrossentropy',
+metrics:['accuracy']
+});
+
+async function train(){
+
+let denseHistory = await denseModel.fit(xs,ys,{epochs:10});
+let rnnHistory = await rnnModel.fit(xs.reshape([50,5,1]),ys,{epochs:10});
+
+document.getElementById("output").innerText =
+"Dense Accuracy: "+denseHistory.history.acc?.slice(-1) +
+"\nRNN Accuracy: "+rnnHistory.history.acc?.slice(-1);
+
+}
+
+train();
+
+</script>
+
+</body>
+</html>

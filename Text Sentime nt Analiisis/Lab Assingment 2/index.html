@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Sentiment Prediction</title>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+</head>
+
+<body>
+
+<h2>Test Sentiment</h2>
+
+<input id="text" placeholder="Enter sentence">
+<button onclick="predict()">Predict</button>
+
+<p id="result"></p>
+
+<script>
+
+// Simple trained model simulation
+const model = tf.sequential();
+model.add(tf.layers.dense({units:1,inputShape:[1],activation:'sigmoid'}));
+model.compile({optimizer:'adam',loss:'binaryCrossentropy'});
+
+// Example prediction
+async function predict(){
+
+let input = document.getElementById("text").value;
+
+let score = Math.random();   // simulated confidence
+
+let sentiment = score > 0.5 ? "Positive" : "Negative";
+
+document.getElementById("result").innerText =
+"Sentiment: "+sentiment+
+"\nConfidence: "+score.toFixed(2);
+
+}
+
+</script>
+
+</body>
+</html>
