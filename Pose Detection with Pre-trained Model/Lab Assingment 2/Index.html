@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Squat Counter</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/posenet"></script>
+</head>
+
+<body>
+
+<h2>Squat Counter</h2>
+<video id="cam" width="400" autoplay></video>
+<p id="count">Reps: 0</p>
+
+<script>
+let net, reps = 0, down = false;
+
+function angle(a, b, c) {
+  const ab = [a.x - b.x, a.y - b.y];
+  const cb = [c.x - b.x, c.y - b.y];
+
+  const dot = ab[0]*cb[0] + ab[1]*cb[1];
+  const magA = Math.sqrt(ab[0]**2 + ab[1]**2);
+  const magC = Math.sqrt(cb[0]**2 + cb[1]**2);
+
+  return Math.acos(dot/(magA*magC)) * (180/Math.PI);
+}
+
+async function init() {
+  const video = document.getElementById("cam");
+  const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+  video.srcObject = stream;
+
+  net = await posenet.load();
+  track(video);
+}
+
+async function track(video) {
+  const pose = await net.estimateSinglePose(video);
+
+  const hip = pose.keypoints[11].position;
+  const knee = pose.keypoints[13].position;
+  const ankle = pose.keypoints[15].position;
+
+  const ang = angle(hip, knee, ankle);
+
+  // Squat logic
+  if (ang < 90) down = true;
+  if (ang > 160 && down) {
+    reps++;
+    down = false;
+    document.getElementById("count").innerText = "Reps: " + reps;
+  }
+
+  setTimeout(() => track(video), 200);
+}
+
+init();
+</script>
+
+</body>
+</html>

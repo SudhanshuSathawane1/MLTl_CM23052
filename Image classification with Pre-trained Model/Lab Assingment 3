@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Model Comparison</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+</head>
+
+<body>
+    <h2>MobileNet vs COCO-SSD</h2>
+
+    <input type="file" id="upload" accept="image/*"><br><br>
+    <img id="img" width="300"><br><br>
+
+    <button onclick="predict()">Predict</button>
+
+    <h3>MobileNet (Classification):</h3>
+    <ul id="mobile"></ul>
+
+    <h3>COCO-SSD (Detection):</h3>
+    <ul id="coco"></ul>
+
+<script>
+let mobileModel, cocoModel;
+
+async function loadModels() {
+    mobileModel = await mobilenet.load();
+    cocoModel = await cocoSsd.load();
+    console.log("Models Loaded");
+}
+loadModels();
+
+document.getElementById('upload').onchange = (e) => {
+    document.getElementById('img').src = URL.createObjectURL(e.target.files[0]);
+};
+
+async function predict() {
+    const img = document.getElementById('img');
+
+    // MobileNet
+    const mobilePred = await mobileModel.classify(img);
+    let mobileList = document.getElementById('mobile');
+    mobileList.innerHTML = "";
+    mobilePred.forEach(p => {
+        let li = document.createElement('li');
+        li.innerText = `${p.className} (${p.probability.toFixed(2)})`;
+        mobileList.appendChild(li);
+    });
+
+    // COCO-SSD
+    const cocoPred = await cocoModel.detect(img);
+    let cocoList = document.getElementById('coco');
+    cocoList.innerHTML = "";
+    cocoPred.forEach(p => {
+        let li = document.createElement('li');
+        li.innerText = `${p.class} (${p.score.toFixed(2)})`;
+        cocoList.appendChild(li);
+    });
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>MobileNet Accuracy (Online Images)</title>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
+</head>
+
+<body>
+
+<h2>Accuracy Test (Online Images)</h2>
+<pre id="output"></pre>
+
+<script>
+
+const imageURLs = [
+"https://images.unsplash.com/photo-1517423440428-a5a00ad493e8", // dog
+"https://images.unsplash.com/photo-1501706362039-c6e80948bbf0", // cat
+"https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d", // car
+"https://images.unsplash.com/photo-1574226516831-e1dff420e12e", // banana
+"https://images.unsplash.com/photo-1519125323398-675f0ddb6308"  // laptop
+];
+
+const labels = ["dog","cat","car","banana","laptop"];
+
+let model;
+
+async function test(){
+
+model = await mobilenet.load();
+
+let correct = 0;
+
+for(let i=0;i<imageURLs.length;i++){
+
+let img = new Image();
+img.src = imageURLs[i];
+
+await new Promise(resolve => img.onload = resolve);
+
+let pred = await model.classify(img);
+
+let predicted = pred[0].className.toLowerCase();
+
+if(predicted.includes(labels[i])){
+correct++;
+}
+
+document.getElementById("output").innerText += 
+labels[i] + " → " + pred[0].className + "\n";
+}
+
+let acc = (correct/5)*100;
+
+document.getElementById("output").innerText += 
+"\nAccuracy: " + acc.toFixed(2) + "%";
+
+}
+
+test();
+
+</script>
+
+</body>
+</html>

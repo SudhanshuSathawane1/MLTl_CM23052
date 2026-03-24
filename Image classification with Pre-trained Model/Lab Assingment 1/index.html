@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>MobileNet Online Image</title>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
+</head>
+
+<body>
+
+<h2>MobileNet - Online Image Classification</h2>
+
+<img id="img" src="https://images.unsplash.com/photo-1517423440428-a5a00ad493e8" width="250">
+<pre id="result"></pre>
+
+<script>
+
+let model;
+
+async function run(){
+model = await mobilenet.load();
+
+const img = document.getElementById("img");
+
+const predictions = await model.classify(img);
+
+let output = "Top 3 Predictions:\n";
+
+for(let i=0;i<3;i++){
+output += predictions[i].className + " : " + predictions[i].probability.toFixed(3) + "\n";
+}
+
+document.getElementById("result").innerText = output;
+}
+
+run();
+
+</script>
+
+</body>
+</html>

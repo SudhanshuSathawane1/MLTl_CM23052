@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Confusion Matrix</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+</head>
+
+<body>
+
+<h2>Confusion Matrix Evaluation</h2>
+<button onclick="runTest()">Run Evaluation</button>
+<pre id="matrix"></pre>
+
+<script>
+// Example predictions vs actual labels
+const actual = ["Apple","Apple","Banana","Orange","Banana"];
+const predicted = ["Apple","Banana","Banana","Orange","Apple"];
+
+function runTest() {
+  const labels = ["Apple","Banana","Orange"];
+  let matrix = {};
+
+  labels.forEach(a => {
+    matrix[a] = {};
+    labels.forEach(p => matrix[a][p] = 0);
+  });
+
+  for (let i = 0; i < actual.length; i++) {
+    matrix[actual[i]][predicted[i]]++;
+  }
+
+  document.getElementById("matrix").innerText =
+    JSON.stringify(matrix, null, 2);
+}
+</script>
+
+</body>
+</html>

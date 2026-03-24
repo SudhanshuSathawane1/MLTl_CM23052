@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Single vs Multi Pose</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/posenet"></script>
+</head>
+
+<body>
+
+<h2>Pose Accuracy Comparison</h2>
+
+<video id="v" width="400" autoplay></video>
+<p id="result"></p>
+
+<script>
+let net;
+
+async function start() {
+  const video = document.getElementById("v");
+  const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+  video.srcObject = stream;
+
+  net = await posenet.load();
+
+  compare(video);
+}
+
+async function compare(video) {
+  const single = await net.estimateSinglePose(video);
+  const multi = await net.estimateMultiplePoses(video);
+
+  let singleScore = single.score;
+
+  let multiScore = 0;
+  multi.forEach(p => multiScore += p.score);
+  multiScore = multi.length ? multiScore / multi.length : 0;
+
+  document.getElementById("result").innerText =
+    "Single Pose Score: " + singleScore.toFixed(2) +
+    " | Multi Pose Avg Score: " + multiScore.toFixed(2);
+
+  requestAnimationFrame(() => compare(video));
+}
+
+start();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Incremental Training</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/knn-classifier"></script>
+</head>
+
+<body>
+
+<h2>Incremental Learning</h2>
+
+<video id="cam" width="300" autoplay></video><br><br>
+
+<input type="text" id="newClass" placeholder="Enter new class">
+<button onclick="addNew()">Add Class</button>
+
+<p id="info">Classes: 0</p>
+
+<script>
+let net, classifier, classCount = 0;
+
+async function start() {
+  const video = document.getElementById("cam");
+  const stream = await navigator.mediaDevices.getUserMedia({video:true});
+  video.srcObject = stream;
+
+  net = await mobilenet.load();
+  classifier = knnClassifier.create();
+}
+
+async function addNew() {
+  const label = document.getElementById("newClass").value;
+  const video = document.getElementById("cam");
+
+  const activation = net.infer(video, true);
+  classifier.addExample(activation, label);
+
+  classCount++;
+  document.getElementById("info").innerText =
+    "Classes: " + classCount;
+}
+
+start();
+</script>
+
+</body>
+</html>

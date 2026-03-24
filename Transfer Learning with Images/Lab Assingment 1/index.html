@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Train Fruits Classifier</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/knn-classifier"></script>
+</head>
+
+<body>
+<h2>Fruit Classifier (Apple / Banana / Orange)</h2>
+
+<video id="webcam" width="300" autoplay></video><br><br>
+
+<button onclick="addExample('Apple')">Add Apple</button>
+<button onclick="addExample('Banana')">Add Banana</button>
+<button onclick="addExample('Orange')">Add Orange</button>
+
+<p id="output">Prediction: </p>
+
+<script>
+let net, classifier;
+
+async function init() {
+  const video = document.getElementById("webcam");
+  const stream = await navigator.mediaDevices.getUserMedia({video:true});
+  video.srcObject = stream;
+
+  net = await mobilenet.load();
+  classifier = knnClassifier.create();
+
+  predict(video);
+}
+
+async function addExample(label) {
+  const video = document.getElementById("webcam");
+  const activation = net.infer(video, true);
+  classifier.addExample(activation, label);
+}
+
+async function predict(video) {
+  if (classifier.getNumClasses() > 0) {
+    const activation = net.infer(video, true);
+    const result = await classifier.predictClass(activation);
+
+    document.getElementById("output").innerText =
+      "Prediction: " + result.label;
+  }
+
+  requestAnimationFrame(() => predict(video));
+}
+
+init();
+</script>
+</body>
+</html>

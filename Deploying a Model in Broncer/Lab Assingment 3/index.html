@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Export & Import Model</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+</head>
+
+<body>
+
+<h2>Export & Import Model</h2>
+
+<button onclick="createAndDownload()">Download Model</button><br><br>
+
+<input type="file" id="upload" multiple>
+<button onclick="loadModel()">Load Model</button>
+
+<p id="result"></p>
+
+<script>
+let model;
+
+async function createAndDownload() {
+  model = tf.sequential();
+  model.add(tf.layers.dense({units:1, inputShape:[1]}));
+
+  model.compile({loss:'meanSquaredError', optimizer:'sgd'});
+
+  const xs = tf.tensor([1,2,3,4]);
+  const ys = tf.tensor([2,4,6,8]);
+
+  await model.fit(xs, ys, {epochs: 100});
+
+  await model.save('downloads://my-model');
+}
+
+async function loadModel() {
+  const files = document.getElementById("upload").files;
+
+  const uploadedModel = await tf.loadLayersModel(
+    tf.io.browserFiles([files[0], files[1]])
+  );
+
+  const pred = uploadedModel.predict(tf.tensor([7]));
+  const val = pred.dataSync()[0];
+
+  document.getElementById("result").innerText =
+    "Prediction for 7: " + val.toFixed(2);
+}
+</script>
+
+</body>
+</html>
